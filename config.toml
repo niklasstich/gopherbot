@@ -1,7 +1,0 @@
-# TOML configuration file for gopherbot
-
-[Discord]
-BotToken = ""
-
-[Application]
-PingpongMessage = "Ping Pong!"
