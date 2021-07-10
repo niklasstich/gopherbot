@@ -6,15 +6,17 @@ import (
 )
 
 type config struct {
-	Discord DiscordConfig
-	Application ApplicationConfig
+	Discord     discordConfig
+	Application applicationConfig
 }
 
-type DiscordConfig struct {
-	BotToken        string
+type discordConfig struct {
+	BotToken                 string
+	GuildId                  string
+	ClearSlashCommandsOnQuit bool
 }
 
-type ApplicationConfig struct {
+type applicationConfig struct {
 	PingpongMessage string
 }
 

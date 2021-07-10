@@ -2,51 +2,101 @@ package main
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/niklasstich/gopherbot/commands"
 	"github.com/niklasstich/gopherbot/config"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
+var (
+	//TODO: fill in
+	commandList = []*discordgo.ApplicationCommand{
+		&commands.PingCommand,
+	}
+	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
+		commands.PingCommand.Name: commands.PingHandler,
+	}
+	commandIds = make([]string, 0)
+)
+
+var discordSess *discordgo.Session
+
+//goland:noinspection GoNilness
 func main() {
 	log.Println("Connecting to discord...")
-	discordSess, err := discordgo.New("Bot " + config.Conf.Discord.BotToken)
+	var err error
+	discordSess, err = discordgo.New("Bot " + config.Conf.Discord.BotToken)
 	if err != nil {
-		log.Fatal(err.Error())
+		FailFast(err.Error())
 	}
 
-	//add intents - seems to be new
-	discordSess.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
+	discordSess.AddHandler(func(_ *discordgo.Session, _ *discordgo.Ready) {
+		log.Println("Bot connected and ready.")
+	})
 
+	//add intents - seems to be new
+	discordSess.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageTyping | discordgo.IntentsGuildMessageReactions | discordgo.IntentsGuildIntegrations | discordgo.IntentsAllWithoutPrivileged
 
 	err = discordSess.Open()
 	if err != nil {
-		log.Fatal(err.Error())
+		FailFast(err.Error())
 	}
 	defer discordSess.Close()
 
+	//add first level handler for slash command interactions
+	discordSess.AddHandler(interactionFLH)
 
-	discordSess.AddHandler(pingpong)
+	//register slash commands
+	for _, cmd := range commandList {
+		retval, err := discordSess.ApplicationCommandCreate(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmd)
+		if err != nil {
+			log.Error("Failed registering slash command: ", err.Error())
+			continue
+		}
+		cmd.ID = retval.ID
+		commandIds = append(commandIds, retval.ID)
+	}
 
-	log.Println("Connected and running! CTRL-C to stop.")
+	//defer clearing slash commandList if set, so we clear on graceful quit
+	if config.Conf.Discord.ClearSlashCommandsOnQuit {
+		defer ClearSlashCommands()
+	}
+
+	log.Println("CTRL-C to stop bot.")
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sig
 	log.Println("Got termination signal, shutting down gracefully.")
 }
 
-//returns pingpong message
-func pingpong(s *discordgo.Session, m *discordgo.MessageCreate) {
-	//ignore self
-	if m.Author.ID==s.State.User.ID {
-		return
+//interactionFLH is the first level handler for all interactions. If we know a command with the given name, we call that handler.
+func interactionFLH(s *discordgo.Session, interact *discordgo.InteractionCreate) {
+	if handler, ok := handlers[interact.ApplicationCommandData().Name]; ok {
+		handler(s, interact)
+	} else {
+		log.Warningf("Interaction received for command name %s, but no handler was found.", interact.ApplicationCommandData().Name)
 	}
+}
 
-	if m.Content=="ping" {
-		_, err := s.ChannelMessageSend(m.ChannelID, config.Conf.Application.PingpongMessage)
+// FailFast provides a method for quitting cleanly on unrecoverable errors
+func FailFast(v ...interface{}) {
+	if config.Conf.Discord.ClearSlashCommandsOnQuit {
+		ClearSlashCommands()
+	}
+	discordSess.Close()
+	log.Fatal(v)
+}
+
+// ClearSlashCommands clears all slash commandList from the Discord API
+func ClearSlashCommands() {
+	//TODO: remove slash commandList
+	for _, cmdId := range commandIds {
+		err := discordSess.ApplicationCommandDelete(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmdId)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Error("Failed removing slash command: ", err.Error())
 		}
 	}
+	log.Println("Cleaned up slash commandList.")
 }
