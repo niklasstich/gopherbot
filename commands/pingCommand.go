@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/niklasstich/gopherbot/config"
+	log "github.com/sirupsen/logrus"
 )
 
 var PingCommand = discordgo.ApplicationCommand{
@@ -15,10 +16,13 @@ var PingCommand = discordgo.ApplicationCommand{
 }
 
 func PingHandler(s *discordgo.Session, interact *discordgo.InteractionCreate) {
-	s.InteractionRespond(interact.Interaction, &discordgo.InteractionResponse{
+	err := s.InteractionRespond(interact.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: config.Conf.Application.PingpongMessage,
 		},
 	})
+	if err != nil {
+		log.Error("Failed to pong the ping :( ", err.Error())
+	}
 }

@@ -4,6 +4,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/niklasstich/gopherbot/commands"
 	"github.com/niklasstich/gopherbot/config"
+	"github.com/niklasstich/gopherbot/userdata"
+
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
@@ -11,12 +13,13 @@ import (
 )
 
 var (
-	//TODO: fill in
 	commandList = []*discordgo.ApplicationCommand{
 		&commands.PingCommand,
+		&commands.DailyCurrencyCommand,
 	}
 	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
-		commands.PingCommand.Name: commands.PingHandler,
+		commands.PingCommand.Name:          commands.PingHandler,
+		commands.DailyCurrencyCommand.Name: commands.DailyCurrencyHandler,
 	}
 	commandIds = make([]string, 0)
 )
@@ -43,7 +46,9 @@ func main() {
 	if err != nil {
 		FailFast(err.Error())
 	}
+
 	defer discordSess.Close()
+	defer userdata.EnsureDBClosed()
 
 	//add first level handler for slash command interactions
 	discordSess.AddHandler(interactionFLH)
@@ -86,12 +91,12 @@ func FailFast(v ...interface{}) {
 		ClearSlashCommands()
 	}
 	discordSess.Close()
+	userdata.EnsureDBClosed()
 	log.Fatal(v)
 }
 
 // ClearSlashCommands clears all slash commandList from the Discord API
 func ClearSlashCommands() {
-	//TODO: remove slash commandList
 	for _, cmdId := range commandIds {
 		err := discordSess.ApplicationCommandDelete(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmdId)
 		if err != nil {

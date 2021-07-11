@@ -18,6 +18,7 @@ type discordConfig struct {
 
 type applicationConfig struct {
 	PingpongMessage string
+	DailyCurrency   int64
 }
 
 var Conf config
