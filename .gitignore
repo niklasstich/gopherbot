@@ -6,6 +6,7 @@
 *.dll
 *.so
 *.dylib
+gopherbot
 
 # Test binary, built with `go test -c`
 *.test
@@ -15,3 +16,6 @@
 
 ##config
 config.toml
+
+##database
+*.db
