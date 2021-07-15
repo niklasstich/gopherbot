@@ -16,3 +16,9 @@ func sendInteractionResponse(s *discordgo.Session, interact *discordgo.Interacti
 		log.Error("Failed to send error response: ", err.Error())
 	}
 }
+
+func sendDbErrorResponse(s *discordgo.Session, interact *discordgo.InteractionCreate) {
+	sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
+		Content: ":x: Internal database error",
+	})
+}

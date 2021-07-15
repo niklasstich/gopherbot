@@ -16,10 +16,12 @@ var (
 	commandList = []*discordgo.ApplicationCommand{
 		&commands.PingCommand,
 		&commands.DailyCurrencyCommand,
+		&commands.GiftCurrencyCommand,
 	}
 	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
 		commands.PingCommand.Name:          commands.PingHandler,
 		commands.DailyCurrencyCommand.Name: commands.DailyCurrencyHandler,
+		commands.GiftCurrencyCommand.Name:  commands.GiftCurrencyHandler,
 	}
 	commandIds = make([]string, 0)
 )

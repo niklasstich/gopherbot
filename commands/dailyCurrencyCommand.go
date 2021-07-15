@@ -25,9 +25,7 @@ func DailyCurrencyHandler(s *discordgo.Session, interact *discordgo.InteractionC
 		user, err = userdata.CreateUser(interact.Member.User.ID)
 		if err != nil {
 			log.Errorf("Could not create user in db for id %s, bailing: %v", interact.User.ID, err.Error())
-			sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
-				Content: "❌ Failed to claim currency: Internal db error",
-			})
+			sendDbErrorResponse(s, interact)
 			return
 		}
 	}
@@ -45,14 +43,12 @@ func DailyCurrencyHandler(s *discordgo.Session, interact *discordgo.InteractionC
 	}
 
 	//user can claim points
-	user.Points += config.Conf.Application.DailyCurrency
-	user.LastCurrencyClaimTime = time.Now()
+	user.AddPoints(config.Conf.Application.DailyCurrency)
+	user.SetCurrencyClaimTime(time.Now())
 	err = user.WriteToDB()
 	if err != nil {
 		log.Errorf("Couldn't save user id %s back to db", user.ID)
-		sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
-			Content: "❌ Failed to claim currency: Internal db error",
-		})
+		sendDbErrorResponse(s, interact)
 		return
 	}
 	//success

@@ -33,7 +33,7 @@ func init() {
 	log.Debug("Initialized DB")
 }
 
-func createUser(id string) (err error) {
+func createUserDb(id string) (err error) {
 	//open tx
 	tx, err := db.Begin()
 	if err != nil {
@@ -62,9 +62,9 @@ func createUser(id string) (err error) {
 	return
 }
 
-//getUserQuery returns the *DBUser for given id found in the database.
+//getUserDb returns the *DBUser for given id found in the database.
 //If no entry exists, it will simply return nil.
-func getUserQuery(id string) (user *DBUser) {
+func getUserDb(id string) (user *DBUser) {
 	user = &DBUser{}
 	res, err := db.Query("SELECT * FROM users WHERE id = (?);", id)
 	if err != nil {
@@ -86,7 +86,7 @@ func getUserQuery(id string) (user *DBUser) {
 	return
 }
 
-func updateUser(user DBUser) (err error) {
+func updateUserDb(user DBUser) (err error) {
 	tx, err := db.Begin()
 	if err != nil {
 		log.Error("Failed to open DB transaction: ", err.Error())
