@@ -17,11 +17,13 @@ var (
 		&commands.PingCommand,
 		&commands.DailyCurrencyCommand,
 		&commands.GiftCurrencyCommand,
+		&commands.StatusCommand,
 	}
 	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
 		commands.PingCommand.Name:          commands.PingHandler,
 		commands.DailyCurrencyCommand.Name: commands.DailyCurrencyHandler,
 		commands.GiftCurrencyCommand.Name:  commands.GiftCurrencyHandler,
+		commands.StatusCommand.Name:        commands.StatusHandler,
 	}
 	commandIds = make([]string, 0)
 )

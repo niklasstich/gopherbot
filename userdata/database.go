@@ -128,3 +128,18 @@ func EnsureDBClosed() {
 		}
 	}
 }
+
+func UserCount() (count int64) {
+	res, err := db.Query("SELECT COUNT (id) FROM main.users;")
+	if err != nil {
+		log.Error("Failed to query user count: ", err.Error())
+		return 0
+	}
+	res.Next()
+	err = res.Scan(&count)
+	if err != nil {
+		log.Error("Failed to read user count: ", err.Error())
+		return 0
+	}
+	return
+}
