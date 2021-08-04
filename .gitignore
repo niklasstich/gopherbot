@@ -15,7 +15,7 @@ gopherbot
 *.out
 
 ##config
-config.toml
+secrets/config.toml
 
 ##database
 *.db

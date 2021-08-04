@@ -25,7 +25,7 @@ var Conf config
 
 func init() {
 	//ignore metadata
-	if _, err := toml.DecodeFile("config.toml", &Conf); err != nil {
+	if _, err := toml.DecodeFile("config/config.toml", &Conf); err != nil {
 		log.Fatal("Failed to parse config file: ", err.Error())
 	}
 }

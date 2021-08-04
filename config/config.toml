@@ -1,0 +1,15 @@
+# TOML configuration file for gopherbot
+
+[Discord]
+# application token
+#BotToken = ""
+
+# uncomment and fill out if you want commands to only be available in a certain server
+#GuildId = ""
+
+# if set to true, slash commands will be cleared from the API before we quit
+ClearSlashCommandsOnQuit = true
+
+[Application]
+PingpongMessage = "Ping Pong!"
+DailyCurrency = 200
