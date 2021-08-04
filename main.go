@@ -18,12 +18,16 @@ var (
 		&commands.DailyCurrencyCommand,
 		&commands.GiftCurrencyCommand,
 		&commands.StatusCommand,
+		&commands.AndenwotCommand,
+		&commands.BalanceCommand,
 	}
 	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
 		commands.PingCommand.Name:          commands.PingHandler,
 		commands.DailyCurrencyCommand.Name: commands.DailyCurrencyHandler,
 		commands.GiftCurrencyCommand.Name:  commands.GiftCurrencyHandler,
 		commands.StatusCommand.Name:        commands.StatusHandler,
+		commands.AndenwotCommand.Name:      commands.AndenwotHandler,
+		commands.BalanceCommand.Name:       commands.BalanceHandler,
 	}
 	commandIds = make([]string, 0)
 )
@@ -86,6 +90,7 @@ func interactionFLH(s *discordgo.Session, interact *discordgo.InteractionCreate)
 		handler(s, interact)
 	} else {
 		log.Warningf("Interaction received for command name %s, but no handler was found.", interact.ApplicationCommandData().Name)
+		commands.SendGenericErrorResponse(s, interact)
 	}
 }
 

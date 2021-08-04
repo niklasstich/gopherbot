@@ -13,12 +13,18 @@ func sendInteractionResponse(s *discordgo.Session, interact *discordgo.Interacti
 		Data: rData,
 	})
 	if err != nil {
-		log.Error("Failed to send error response: ", err.Error())
+		log.Error("Failed to send response: ", err.Error())
 	}
 }
 
 func sendDbErrorResponse(s *discordgo.Session, interact *discordgo.InteractionCreate) {
 	sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
 		Content: ":x: Internal database error",
+	})
+}
+
+func SendGenericErrorResponse(s *discordgo.Session, interact *discordgo.InteractionCreate) {
+	sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
+		Content: ":x: General failure",
 	})
 }
