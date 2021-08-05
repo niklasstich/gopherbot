@@ -32,6 +32,7 @@ func BalanceHandler(s *discordgo.Session, interact *discordgo.InteractionCreate)
 		sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
 			Content: "Yeah, I bet you'd want to know that.",
 		})
+		return
 	}
 
 	user := userdata.GetUser(dcUser.ID)
