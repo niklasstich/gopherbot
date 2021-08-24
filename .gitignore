@@ -7,6 +7,8 @@
 *.so
 *.dylib
 gopherbot
+##output folder
+out/*
 
 # Test binary, built with `go test -c`
 *.test
