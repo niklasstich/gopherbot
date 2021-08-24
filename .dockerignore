@@ -1,0 +1,6 @@
+out/*
+secrets/*
+gopherbot
+sqlite.db
+.dockerignore
+.gitignore
