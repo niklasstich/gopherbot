@@ -25,7 +25,7 @@ type applicationConfig struct {
 var Conf config
 
 func init() {
-	//ignore metadata
+	//set default config as backup and so we can write a default config file if needed
 	viper.SetDefault("Discord", discordConfig{
 		BotToken:                 "",
 		GuildId:                  "",
@@ -67,6 +67,7 @@ func init() {
 		}
 	}
 
+	//unmarshal into struct
 	if err := viper.Unmarshal(&Conf); err != nil {
 		log.Fatalf("Failed to unmarshal config into Conf struct, %v", err)
 	}

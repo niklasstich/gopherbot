@@ -44,6 +44,7 @@ func createUserDb(id string) (err error) {
 	stmtUserAdd, err := tx.Prepare("INSERT INTO users(id,points, LastCurrencyClaimTime) VALUES(?, ?, ?);")
 	if err != nil {
 		log.Error("Failed to prepare DB new user statement: ", err.Error())
+		tx.Rollback()
 		return
 	}
 	defer stmtUserAdd.Close()
@@ -51,6 +52,7 @@ func createUserDb(id string) (err error) {
 	_, err = stmtUserAdd.Exec(id, 0, time.Now().AddDate(0, 0, -1))
 	if err != nil {
 		log.Error("Failed to execute DB new user statement: ", err.Error())
+		tx.Rollback()
 		return
 	}
 
@@ -97,6 +99,7 @@ func updateUserDb(user DBUser) (err error) {
 					WHERE id = ?;`)
 	if err != nil {
 		log.Error("Failed to prepare DB UserUpdate statement: ", err.Error())
+		tx.Rollback()
 		return
 	}
 	defer stmtUserUpdate.Close()
@@ -104,6 +107,7 @@ func updateUserDb(user DBUser) (err error) {
 	res, err := stmtUserUpdate.Exec(user.Points, user.LastCurrencyClaimTime, user.ID)
 	if err != nil {
 		log.Error("Failed to execute DB UpdateUser statement: ", err.Error())
+		tx.Rollback()
 		return
 	}
 	affected, _ := res.RowsAffected()
@@ -135,6 +139,7 @@ func UserCount() (count int64) {
 		log.Error("Failed to query user count: ", err.Error())
 		return 0
 	}
+	defer res.Close()
 	res.Next()
 	err = res.Scan(&count)
 	if err != nil {

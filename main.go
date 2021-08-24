@@ -6,6 +6,7 @@ import (
 	"github.com/niklasstich/gopherbot/config"
 	"github.com/niklasstich/gopherbot/userdata"
 
+	"flag"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
@@ -34,6 +35,15 @@ var (
 
 var discordSess *discordgo.Session
 
+func init() {
+	verbosePtr := flag.Bool("verbose", false, "Enable verbosed log output")
+	flag.Parse()
+
+	if *verbosePtr {
+		log.SetLevel(log.TraceLevel)
+	}
+}
+
 //goland:noinspection GoNilness
 func main() {
 	log.Println("Connecting to discord...")
@@ -61,6 +71,8 @@ func main() {
 	//add first level handler for slash command interactions
 	discordSess.AddHandler(interactionFLH)
 
+	log.Info("Registering slash commands...")
+
 	//register slash commands
 	for _, cmd := range commandList {
 		retval, err := discordSess.ApplicationCommandCreate(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmd)
@@ -68,9 +80,11 @@ func main() {
 			log.Error("Failed registering slash command: ", err.Error())
 			continue
 		}
+		log.Debugf("Registered %s command", cmd.Name)
 		cmd.ID = retval.ID
 		commandIds = append(commandIds, retval.ID)
 	}
+	log.Infof("Registered %d slash commands", len(commandList))
 
 	//defer clearing slash commandList if set, so we clear on graceful quit
 	if config.Conf.Discord.ClearSlashCommandsOnQuit {
@@ -106,11 +120,13 @@ func FailFast(v ...interface{}) {
 
 // ClearSlashCommands clears all slash commandList from the Discord API
 func ClearSlashCommands() {
+	log.Info("Cleaning up slash commands...")
 	for _, cmdId := range commandIds {
 		err := discordSess.ApplicationCommandDelete(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmdId)
 		if err != nil {
 			log.Error("Failed removing slash command: ", err.Error())
 		}
+		log.Debugf("Cleared %s command", cmdId)
 	}
-	log.Println("Cleaned up slash commandList.")
+	log.Info("Cleaned up slash commandList.")
 }
