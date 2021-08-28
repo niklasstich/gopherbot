@@ -1,0 +1,7 @@
+application:
+  pingpongmessage: Ping Pong!
+  dailycurrency: 200
+discord:
+  bottoken: ""
+  guildid: ""
+  clearslashcommandsonquit: true

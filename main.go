@@ -7,10 +7,11 @@ import (
 	"github.com/niklasstich/gopherbot/userdata"
 
 	"flag"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -21,14 +22,19 @@ var (
 		&commands.StatusCommand,
 		&commands.AndenwotCommand,
 		&commands.BalanceCommand,
+		//&commands.TictactoeCommand,
 	}
-	handlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
+	commandHandlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
 		commands.PingCommand.Name:          commands.PingHandler,
 		commands.DailyCurrencyCommand.Name: commands.DailyCurrencyHandler,
 		commands.GiftCurrencyCommand.Name:  commands.GiftCurrencyHandler,
 		commands.StatusCommand.Name:        commands.StatusHandler,
 		commands.AndenwotCommand.Name:      commands.AndenwotHandler,
 		commands.BalanceCommand.Name:       commands.BalanceHandler,
+		//commands.TictactoeCommand.Name:     commands.TictactoeHandler,
+	}
+	componentHandlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
+		//"hellodiscord": commands.HellodiscordHandler,
 	}
 	commandIds = make([]string, 0)
 )
@@ -100,11 +106,25 @@ func main() {
 
 //interactionFLH is the first level handler for all interactions. If we know a command with the given name, we call that handler.
 func interactionFLH(s *discordgo.Session, interact *discordgo.InteractionCreate) {
-	if handler, ok := handlers[interact.ApplicationCommandData().Name]; ok {
-		handler(s, interact)
-	} else {
-		log.Warningf("Interaction received for command name %s, but no handler was found.", interact.ApplicationCommandData().Name)
-		commands.SendGenericErrorResponse(s, interact)
+	switch interact.Type {
+	case discordgo.InteractionApplicationCommand:
+		{
+			if handler, ok := commandHandlers[interact.ApplicationCommandData().Name]; ok {
+				handler(s, interact)
+			} else {
+				log.Warningf("Interaction received for command name %s, but no handler was found.", interact.ApplicationCommandData().Name)
+				commands.SendGenericErrorResponse(s, interact)
+			}
+		}
+	case discordgo.InteractionMessageComponent:
+		{
+			if handler, ok := componentHandlers[interact.MessageComponentData().CustomID]; ok {
+				handler(s, interact)
+			} else {
+				log.Warningf("Interaction received for component name %s, but no handler was found.", interact.MessageComponentData().CustomID)
+				commands.SendGenericErrorResponse(s, interact)
+			}
+		}
 	}
 }
 
