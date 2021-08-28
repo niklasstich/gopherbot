@@ -10,6 +10,7 @@ const andenWotCost = 50
 var AndenwotCommand = discordgo.ApplicationCommand{
 	ID:            "",
 	ApplicationID: "",
+	Type:          discordgo.ChatApplicationCommand,
 	Name:          "andenwot",
 	Description:   "Post andenwot.mp4. Costs 50 points to mention a user, otherwise free.",
 	Version:       "1",

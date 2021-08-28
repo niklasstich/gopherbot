@@ -12,6 +12,7 @@ import (
 var DailyCurrencyCommand = discordgo.ApplicationCommand{
 	ID:            "",
 	ApplicationID: "",
+	Type:          discordgo.ChatApplicationCommand,
 	Name:          "claim",
 	Description:   "Claim your daily currency, once every 24 hours!",
 	Version:       "1",

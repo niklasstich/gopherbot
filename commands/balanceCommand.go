@@ -9,6 +9,7 @@ import (
 var BalanceCommand = discordgo.ApplicationCommand{
 	ID:            "",
 	ApplicationID: "",
+	Type:          discordgo.ChatApplicationCommand,
 	Name:          "balance",
 	Description:   "Gets your own point balance or balance of a specific user",
 	Version:       "1",

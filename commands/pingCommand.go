@@ -9,6 +9,7 @@ import (
 var PingCommand = discordgo.ApplicationCommand{
 	ID:            "",
 	ApplicationID: "",
+	Type:          discordgo.ChatApplicationCommand,
 	Name:          "pingpong",
 	Description:   "Ping? Pong!",
 	Version:       "1",

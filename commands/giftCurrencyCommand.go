@@ -10,6 +10,7 @@ import (
 var GiftCurrencyCommand = discordgo.ApplicationCommand{
 	ID:            "",
 	ApplicationID: "",
+	Type:          discordgo.ChatApplicationCommand,
 	Name:          "gift",
 	Description:   "Gift your friends some of your points!",
 	Version:       "1",
