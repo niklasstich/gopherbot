@@ -14,6 +14,7 @@ type config struct {
 type discordConfig struct {
 	BotToken                 string
 	GuildId                  string
+	AppId                    string
 	ClearSlashCommandsOnQuit bool
 }
 
@@ -25,10 +26,11 @@ type applicationConfig struct {
 var Conf config
 
 func init() {
-	//set default config as backup and so we can write a default config file if needed
+	//set default config as backup, and so we can write a default config file if needed
 	viper.SetDefault("Discord", discordConfig{
 		BotToken:                 "",
 		GuildId:                  "",
+		AppId:                    "",
 		ClearSlashCommandsOnQuit: true,
 	})
 	viper.SetDefault("Application", applicationConfig{
@@ -78,6 +80,10 @@ func init() {
 	}
 
 	if Conf.Discord.GuildId != "" {
-		log.Infof("Running in guild mode for GuildID %s", Conf.Discord.GuildId)
+		log.Infof("Running in guild mode for GuildID %s.", Conf.Discord.GuildId)
+	}
+
+	if Conf.Discord.AppId == "" {
+		log.Warningf("Some components will not work if AppId isn't set in the configuration.")
 	}
 }

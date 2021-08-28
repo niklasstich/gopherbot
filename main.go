@@ -22,7 +22,6 @@ var (
 		&commands.StatusCommand,
 		&commands.AndenwotCommand,
 		&commands.BalanceCommand,
-		//&commands.TictactoeCommand,
 	}
 	commandHandlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
 		commands.PingCommand.Name:          commands.PingHandler,
@@ -31,12 +30,9 @@ var (
 		commands.StatusCommand.Name:        commands.StatusHandler,
 		commands.AndenwotCommand.Name:      commands.AndenwotHandler,
 		commands.BalanceCommand.Name:       commands.BalanceHandler,
-		//commands.TictactoeCommand.Name:     commands.TictactoeHandler,
 	}
-	componentHandlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){
-		//"hellodiscord": commands.HellodiscordHandler,
-	}
-	commandIds = make([]string, 0)
+	componentHandlers = map[string]func(s *discordgo.Session, interact *discordgo.InteractionCreate){}
+	commandIds        = make([]string, 0)
 )
 
 var discordSess *discordgo.Session
@@ -60,7 +56,7 @@ func main() {
 	}
 
 	discordSess.AddHandler(func(_ *discordgo.Session, _ *discordgo.Ready) {
-		log.Println("Bot connected and ready.")
+		log.Println("Bot connected and listening.")
 	})
 
 	//add intents - seems to be new
@@ -76,8 +72,9 @@ func main() {
 
 	//add first level handler for slash command interactions
 	discordSess.AddHandler(interactionFLH)
+	log.Trace("Registered FLH.")
 
-	log.Info("Registering slash commands...")
+	log.Info("Registering slash commands, this can take a while...")
 
 	//register slash commands
 	for _, cmd := range commandList {
@@ -101,7 +98,7 @@ func main() {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sig
-	log.Println("Got termination signal, shutting down gracefully.")
+	log.Println("Got termination signal, starting to shut down gracefully...")
 }
 
 //interactionFLH is the first level handler for all interactions. If we know a command with the given name, we call that handler.
@@ -125,6 +122,11 @@ func interactionFLH(s *discordgo.Session, interact *discordgo.InteractionCreate)
 				commands.SendGenericErrorResponse(s, interact)
 			}
 		}
+	default:
+		{
+			log.Warningf("Received unknown interaction type %d", interact.Type)
+			commands.SendGenericErrorResponse(s, interact)
+		}
 	}
 }
 
@@ -140,7 +142,7 @@ func FailFast(v ...interface{}) {
 
 // ClearSlashCommands clears all slash commandList from the Discord API
 func ClearSlashCommands() {
-	log.Info("Cleaning up slash commands...")
+	log.Info("Cleaning up slash commands, this can take a while...")
 	for _, cmdId := range commandIds {
 		err := discordSess.ApplicationCommandDelete(discordSess.State.User.ID, config.Conf.Discord.GuildId, cmdId)
 		if err != nil {
@@ -148,5 +150,5 @@ func ClearSlashCommands() {
 		}
 		log.Debugf("Cleared %s command", cmdId)
 	}
-	log.Info("Cleaned up slash commandList.")
+	log.Info("Cleaned up slash commandList. Shutting down.")
 }

@@ -25,6 +25,6 @@ func sendDbErrorResponse(s *discordgo.Session, interact *discordgo.InteractionCr
 
 func SendGenericErrorResponse(s *discordgo.Session, interact *discordgo.InteractionCreate) {
 	sendInteractionResponse(s, interact, &discordgo.InteractionResponseData{
-		Content: ":x: General failure",
+		Content: ":x: General failure. Please check the logfile of the bot.",
 	})
 }

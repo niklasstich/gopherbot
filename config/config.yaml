@@ -3,5 +3,6 @@ application:
   dailycurrency: 200
 discord:
   bottoken: ""
+  appid: ""
   guildid: ""
   clearslashcommandsonquit: true
